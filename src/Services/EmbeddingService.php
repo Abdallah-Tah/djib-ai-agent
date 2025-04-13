@@ -4,8 +4,9 @@ namespace Djib\AiAgent\Services;
 
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Djib\AiAgent\Interfaces\EmbeddingsInterface;
 
-class EmbeddingService
+class EmbeddingService implements EmbeddingsInterface
 {
     public function embed(string $text): ?array
     {

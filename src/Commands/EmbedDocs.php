@@ -7,8 +7,6 @@ use Illuminate\Console\Command;
 use Djib\AiAgent\Services\SupabaseService;
 use Exception;
 use Illuminate\Support\Facades\Log;
-use Prism\Prism\TextSplitter;
-use Prism\Documents\Document;
 
 class EmbedDocs extends Command
 {
@@ -85,10 +83,10 @@ class EmbedDocs extends Command
                     continue;
                 }
 
-                $documentsToStore[] = new Document(
-                    pageContent: $chunk->content,
-                    metadata: ['tenant_id' => $tenantId]
-                );
+                $documentsToStore[] = [
+                    'content' => $chunk->content,
+                    'metadata' => ['tenant_id' => $tenantId]
+                ];
 
                 if (count($documentsToStore) >= 50 || $processedCount === count($chunks)) {
                     if (!empty($documentsToStore)) {
@@ -109,9 +107,6 @@ class EmbedDocs extends Command
 
             $this->info("✅ Attempted to store {$totalChunks} chunks from {$fileOption}. Check logs for any errors.");
 
-        } catch (\Prism\Prism\Exceptions\InvalidArgumentException $e) {
-            $this->error("Prism configuration error: " . $e->getMessage());
-            Log::error("Prism configuration error in EmbedDocs command", ['exception' => $e]);
         } catch (Exception $e) {
             $this->error("An error occurred: " . $e->getMessage());
             Log::error("Error in EmbedDocs command", ['exception' => $e, 'file' => $filePath]);

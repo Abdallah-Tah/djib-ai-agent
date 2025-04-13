@@ -2,20 +2,20 @@
 
 namespace Djib\AiAgent\Services;
 
-use Prism\VectorStores\Supabase\SupabaseVectorStore;
-use Prism\Embeddings\EmbeddingModel;
-use Prism\Documents\Document;
+use Djib\AiAgent\Models\Document;
 use Illuminate\Support\Facades\Log;
+use Djib\AiAgent\Interfaces\EmbeddingsInterface;
+use Djib\AiAgent\Interfaces\VectorStoreInterface;
 
 class SupabaseService
 {
-    protected SupabaseVectorStore $vectorStore;
-    protected EmbeddingModel $embeddingModel;
+    protected VectorStoreInterface $vectorStore;
+    protected EmbeddingsInterface $embeddingModel;
 
-    public function __construct(SupabaseVectorStore $vectorStore, EmbeddingModel $embeddingModel)
+    public function __construct(EmbeddingsInterface $embeddingModel, VectorStoreInterface $vectorStore)
     {
-        $this->vectorStore = $vectorStore;
         $this->embeddingModel = $embeddingModel;
+        $this->vectorStore = $vectorStore;
     }
 
     /**
@@ -35,14 +35,14 @@ class SupabaseService
             $filter = $tenantId !== null ? ['tenant_id' => $tenantId] : [];
 
             $results = $this->vectorStore->similaritySearch(
-                embedding: $questionEmbedding,
-                k: $k,
-                filter: $filter
+                $questionEmbedding,
+                $k,
+                $filter
             );
 
             return array_map(function (Document $doc) {
                 return [
-                    'content' => $doc->pageContent(),
+                    'content' => $doc->pageContent,
                     'score' => $doc->metadata()['score'] ?? null
                 ];
             }, $results);
@@ -63,15 +63,16 @@ class SupabaseService
      *
      * @param Document[] $documents Array of Prism Document objects
      */
-    public function storeDocuments(array $documents): void
+    public function storeDocuments(array $documents): bool
     {
         if (empty($documents)) {
-            return;
+            return true;
         }
 
         try {
             // This method should handle embedding generation using the configured EmbeddingModel
             $this->vectorStore->addDocuments($documents);
+            return true;
 
         } catch (\Exception $e) {
             // Log details about the batch failure
@@ -80,7 +81,7 @@ class SupabaseService
                 'document_count' => count($documents),
                 'first_doc_metadata' => !empty($documents) ? $documents[0]->metadata() : null,
             ]);
-            // Optionally re-throw or handle more gracefully
+            return false;
         }
     }
 

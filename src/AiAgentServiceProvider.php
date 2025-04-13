@@ -3,6 +3,10 @@
 namespace Djib\AiAgent;
 
 use Illuminate\Support\ServiceProvider;
+use Djib\AiAgent\Services\SupabaseService;
+use Djib\AiAgent\Services\EmbeddingService;
+use Djib\AiAgent\Interfaces\EmbeddingsInterface;
+use Djib\AiAgent\Interfaces\VectorStoreInterface;
 
 class AiAgentServiceProvider extends ServiceProvider
 {
@@ -11,6 +15,8 @@ class AiAgentServiceProvider extends ServiceProvider
         $this->mergeConfigFrom(__DIR__ . '/../config/ai-agent.php', 'ai-agent');
         $this->loadViewsFrom(__DIR__ . '/../resources/views', 'ai-agent');
 
+        // Register the SupabaseService for testing
+        $this->app->singleton(SupabaseService::class);
     }
 
     public function boot()

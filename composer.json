@@ -5,7 +5,15 @@
   "license": "MIT",
   "autoload": {
     "psr-4": {
-      "Djib\\AiAgent\\": "src/"
+      "Djib\\AiAgent\\": [
+        "src/",
+        "app/"
+      ]
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Djib\\AiAgent\\Tests\\": "tests/"
     }
   },
   "extra": {
@@ -23,7 +31,8 @@
   },
   "require-dev": {
     "pestphp/pest": "^2.36",
-    "pestphp/pest-plugin-laravel": "^2.4"
+    "pestphp/pest-plugin-laravel": "^2.4",
+    "orchestra/testbench": "^9.13"
   },
   "minimum-stability": "dev",
   "prefer-stable": true,

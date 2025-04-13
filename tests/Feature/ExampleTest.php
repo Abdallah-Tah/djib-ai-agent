@@ -1,7 +1,6 @@
 <?php
 
-it('verifies a feature of the application', function () {
-    $response = $this->get('/some-feature-endpoint');
-
-    $response->assertStatus(200);
+test('chatbot component renders', function () {
+    $response = $this->get('/chatbot');
+    $response->assertOk();
 });
