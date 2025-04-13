@@ -22,7 +22,7 @@
     "prism-php/prism": "^0.61.0"
   },
   "require-dev": {
-    "pestphp/pest": "^2.0",
+    "pestphp/pest": "^2.36",
     "pestphp/pest-plugin-laravel": "^2.4"
   },
   "minimum-stability": "dev",
