@@ -1,5 +1,4 @@
 <?php
-
 namespace Djib\AiAgent\Services;
 
 use Djib\AiAgent\Models\Document;
