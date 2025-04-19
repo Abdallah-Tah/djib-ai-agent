@@ -9,7 +9,6 @@ use Illuminate\Support\ServiceProvider;
 use Djib\AiAgent\Services\SupabaseService;
 use Djib\AiAgent\Services\EmbeddingService;
 use Djib\AiAgent\Interfaces\EmbeddingsInterface;
-use Djib\AiAgent\Interfaces\VectorStoreInterface;
 
 class AiAgentServiceProvider extends ServiceProvider
 {
@@ -18,7 +17,6 @@ class AiAgentServiceProvider extends ServiceProvider
         $this->mergeConfigFrom(__DIR__ . '/../config/ai-agent.php', 'ai-agent');
 
         $this->app->bind(EmbeddingsInterface::class, EmbeddingService::class);
-        $this->app->bind(VectorStoreInterface::class);
         $this->app->singleton(SupabaseService::class);
     }
 
