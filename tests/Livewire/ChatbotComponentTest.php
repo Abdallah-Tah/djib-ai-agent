@@ -5,6 +5,7 @@ namespace Djib\AiAgent\Tests\Livewire;
 use Djib\AiAgent\Livewire\Chatbot;
 use Djib\AiAgent\Services\TenantAwareResponder;
 use Djib\AiAgent\Tests\TestCase; // Import the base TestCase
+use Illuminate\Support\Facades\Auth; // Import Auth facade
 use Livewire\Livewire;
 use Illuminate\Foundation\Auth\User;
 use Mockery;
@@ -14,7 +15,11 @@ uses(TestCase::class);
 
 test('can send message as unauthenticated user', function () {
     $responder = Mockery::mock(TenantAwareResponder::class);
-    app()->instance(TenantAwareResponder::class, $responder);
+    // Use swap instead of instance
+    $this->swap(TenantAwareResponder::class, $responder);
+
+    // Mock the Auth facade check
+    Auth::shouldReceive('check')->once()->andReturn(false);
 
     $responder->shouldReceive('respond')
         ->with('Hello', 'support')
@@ -37,7 +42,11 @@ test('can send message as authenticated user', function () {
     $this->actingAs($user);
 
     $responder = Mockery::mock(TenantAwareResponder::class);
-    app()->instance(TenantAwareResponder::class, $responder);
+    // Use swap
+    $this->swap(TenantAwareResponder::class, $responder);
+
+    // Mock the Auth facade check
+    Auth::shouldReceive('check')->once()->andReturn(true);
 
     $responder->shouldReceive('respond')
         ->with('Hello', 'tenant')
@@ -56,11 +65,21 @@ test('can send message as authenticated user', function () {
 
 test('maintains conversation history', function () {
     $responder = Mockery::mock(TenantAwareResponder::class);
-    app()->instance(TenantAwareResponder::class, $responder);
+    // Use swap
+    $this->swap(TenantAwareResponder::class, $responder);
+
+    // Mock Auth facade check (assuming unauthenticated for this test)
+    Auth::shouldReceive('check')->twice()->andReturn(false);
 
     $responder->shouldReceive('respond')
-        ->twice()
-        ->andReturn('First response', 'Second response');
+        ->with('First message', 'support')
+        ->once()
+        ->andReturn('First response');
+
+    $responder->shouldReceive('respond')
+        ->with('Second message', 'support')
+        ->once()
+        ->andReturn('Second response');
 
     $component = Livewire::test(Chatbot::class)
         ->set('message', 'First message')
