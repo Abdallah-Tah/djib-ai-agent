@@ -3,95 +3,66 @@
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/djib/ai-agent.svg?style=flat-square)](https://packagist.org/packages/djib/ai-agent)
 [![Total Downloads](https://img.shields.io/packagist/dt/djib/ai-agent.svg?style=flat-square)](https://packagist.org/packages/djib/ai-agent)
 
-This package provides tools and services to integrate AI capabilities, such as document embedding, vector search, and potentially LLM interactions, into your Laravel application. It leverages the [PrismPHP](https://prismphp.com/) library for interacting with embedding models, vector stores (specifically Supabase/pgvector), and text splitting.
+This package provides tools and services to integrate AI capabilities into your Laravel application, including:
+
+*   A Livewire Chatbot component.
+*   Document embedding and vector search using Supabase/pgvector.
+*   Tenant-aware context for chatbot responses and document retrieval.
+*   Configurable embedding models (via PrismPHP, defaults to OpenAI).
+*   An Artisan command for embedding documents.
 
 ## Features
 
-*   Embed document content into a vector store.
-*   Perform similarity searches against embedded documents.
-*   Tenant-aware document storage and retrieval.
-*   Configurable text chunking using PrismPHP.
-*   Uses Supabase (via `pgvector`) as the vector store backend.
+*   **Livewire Chatbot:** A ready-to-use chat interface component.
+*   **Tenant-Aware Responses:** Chatbot context changes based on user authentication status.
+*   **Vector Search:** Embed documents and perform similarity searches using `SupabaseService`.
+*   **Document Embedding Command:** Use `php artisan ai-agent:embed-docs` to process and store documents.
+*   **Configurable:** Set API keys, models, and Supabase details via environment variables.
+*   **Extensible:** Core services are bound to interfaces for easy customization.
 
 ## Installation
 
-You can install the package via Composer:
+1.  **Require the package:**
+    ```bash
+    composer require djib/ai-agent:dev-main
+    ```
+    *(Adjust `dev-main` if you are using a tagged release)*
 
-```bash
-composer require djib/ai-agent
-```
+2.  **Publish Assets:** This step copies the necessary configuration file, views, and mail stubs to your application.
+    ```bash
+    php artisan vendor:publish --provider="Djib\AiAgent\AiAgentServiceProvider"
+    ```
+    *   This will publish:
+        *   `config/ai-agent.php` (Configuration)
+        *   `resources/views/vendor/ai-agent/` (Livewire component view)
+        *   `app/Mail/EscalationAlert.php` (Mail stub)
+    *   You can also publish specific groups using tags: `--tag="ai-agent-config"`, `--tag="ai-agent-views"`, `--tag="ai-agent-mail"`.
 
 ## Configuration
 
-To configure the AI Agent, add the following environment variables to your `.env` file:
+After publishing, configure the package by editing your `.env` file. Add the necessary API keys and Supabase details based on the published `config/ai-agent.php` file.
 
 ```dotenv
-# --- AI Agent Configuration ---
+# --- Djib AI Agent Configuration ---
 
 # Embedding Model (Using PrismPHP's OpenAI integration)
-AI_EMBEDDING_PROVIDER=openai
-OPENAI_API_KEY=sk-...
-OPENAI_ORGANIZATION=org-... # Optional
-AI_EMBEDDING_MODEL=text-embedding-3-small # Or your preferred OpenAI embedding model
+# AI_EMBEDDING_PROVIDER=openai # Currently defaults to openai via PrismPHP
+OPENAI_API_KEY=sk-... # Your OpenAI API Key
+# OPENAI_ORGANIZATION=org-... # Optional
+# AI_EMBEDDING_MODEL=text-embedding-3-small # Or your preferred OpenAI embedding model
 
 # Vector Store (Using PrismPHP's Supabase integration)
-AI_VECTOR_STORE_PROVIDER=supabase
+# AI_VECTOR_STORE_PROVIDER=supabase # Currently defaults to supabase via PrismPHP
 SUPABASE_API_KEY=your_supabase_service_role_key # Important: Use Service Role Key
 SUPABASE_URL=https://your-project-ref.supabase.co
-SUPABASE_VECTOR_TABLE=documents # Your table name in Supabase with pgvector enabled
-SUPABASE_VECTOR_FUNCTION=match_documents # Your Supabase RPC function for vector search
+# SUPABASE_VECTOR_TABLE=documents # Your table name in Supabase with pgvector enabled
+# SUPABASE_VECTOR_FUNCTION=match_documents # Your Supabase RPC function for vector search
 
 # LLM (Optional - If using LLM features via PrismPHP)
-AI_LLM_PROVIDER=openai
-AI_LLM_MODEL=gpt-4o # Or your preferred OpenAI chat/completion model
+# AI_LLM_PROVIDER=openai
+# AI_LLM_MODEL=gpt-4o # Or your preferred OpenAI chat/completion model
 
-# --- End AI Agent Configuration ---
-```
+# Escalation Email
+# ESCALATION_EMAIL_ADDRESS=your-support-email@example.com
 
-## Example Usage
-
-Below is an example of how you can use the AI Agent in your Laravel application to perform a search:
-
-```php
-<?php
-
-namespace App\Http\Controllers;
-
-use Illuminate\Http\Request;
-use Djib\AiAgent\Services\SupabaseService;
-
-class SearchController extends Controller
-{
-    protected SupabaseService $supabaseService;
-
-    public function __construct(SupabaseService $supabaseService)
-    {
-        $this->supabaseService = $supabaseService;
-    }
-
-    public function search(Request $request)
-    {
-        $query = $request->input('query', 'Default search query');
-        $tenantId = $request->user()->company_id; // Example: Get tenant ID from authenticated user
-
-        // Perform the search
-        $results = $this->supabaseService->searchRelevantChunks($query, $tenantId);
-
-        // $results will be an array like:
-        // [
-        //   ['content' => 'Relevant text chunk 1...', 'score' => 0.85],
-        //   ['content' => 'Relevant text chunk 2...', 'score' => 0.82],
-        //   ...
-        // ]
-
-        return view('search.results', ['results' => $results]);
-    }
-}
-```
-
-## Next Steps
-
-1.  **Save:** Save this content as `README.md` in the root of your `djib-ai-agent` package directory (`/home/abdallah-mohamed/laravel-apps/packages/djib-ai-agent/README.md`).
-2.  **License File:** If you don't have one, create a `LICENSE.md` file with the MIT license text (you can easily find templates online).
-3.  **Review:** Read through the generated README and adjust any details specific to your package's implementation (e.g., if you have different service names, additional features, or specific Supabase setup instructions).
-4.  **Commit:** Add the `README.md` and `LICENSE.md` to your Git repository.
+# --- End Djib AI Agent Configuration ---
