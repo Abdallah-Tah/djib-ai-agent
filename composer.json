@@ -5,10 +5,7 @@
   "license": "MIT",
   "autoload": {
     "psr-4": {
-      "Djib\\AiAgent\\": [
-        "src/",
-        "app/"
-      ]
+      "Djib\\AiAgent\\": "src/"
     }
   },
   "autoload-dev": {
