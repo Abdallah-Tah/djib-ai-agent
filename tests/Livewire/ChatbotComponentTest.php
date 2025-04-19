@@ -1,10 +1,16 @@
 <?php
 
+namespace Djib\AiAgent\Tests\Livewire;
+
 use Djib\AiAgent\Livewire\Chatbot;
 use Djib\AiAgent\Services\TenantAwareResponder;
+use Djib\AiAgent\Tests\TestCase; // Import the base TestCase
 use Livewire\Livewire;
 use Illuminate\Foundation\Auth\User;
-use function Pest\Laravel\actingAs;
+use Mockery;
+
+// Use the TestCase to ensure Laravel is bootstrapped
+uses(TestCase::class);
 
 test('can send message as unauthenticated user', function () {
     $responder = Mockery::mock(TenantAwareResponder::class);
@@ -27,7 +33,8 @@ test('can send message as unauthenticated user', function () {
 
 test('can send message as authenticated user', function () {
     $user = new User();
-    actingAs($user);
+    // Ensure actingAs is available
+    $this->actingAs($user);
 
     $responder = Mockery::mock(TenantAwareResponder::class);
     app()->instance(TenantAwareResponder::class, $responder);
