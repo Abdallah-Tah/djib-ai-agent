@@ -3,36 +3,75 @@
 namespace Djib\AiAgent;
 
 use Illuminate\Support\ServiceProvider;
+use Livewire\Livewire;
+use Djib\AiAgent\Livewire\Chatbot;
 use Djib\AiAgent\Services\SupabaseService;
 use Djib\AiAgent\Services\EmbeddingService;
 use Djib\AiAgent\Interfaces\EmbeddingsInterface;
-use Djib\AiAgent\Interfaces\VectorStoreInterface;
+use Djib\AiAgent\Commands\EmbedDocs;
 
 class AiAgentServiceProvider extends ServiceProvider
 {
     public function register()
     {
         $this->mergeConfigFrom(__DIR__ . '/../config/ai-agent.php', 'ai-agent');
-        $this->loadViewsFrom(__DIR__ . '/../resources/views', 'ai-agent');
 
-        // Register the SupabaseService for testing
+        $this->app->bind(EmbeddingsInterface::class, EmbeddingService::class);
         $this->app->singleton(SupabaseService::class);
     }
 
     public function boot()
     {
-        $this->publishes([
-            __DIR__ . '/../config/ai-agent.php' => config_path('ai-agent.php'),
-        ], 'ai-agent-config');
+        $this->loadViewsFrom(__DIR__ . '/../resources/views', 'ai-agent');
 
-        // Corrected path: Removed '../' as stubs is inside src
-        $this->publishes([
-            __DIR__ . '/stubs/Mail/EscalationAlert.php' => app_path('Mail/EscalationAlert.php'),
-        ], 'ai-agent-mail');
+        if (class_exists(Livewire::class)) {
+            Livewire::component('ai-agent::chatbot', Chatbot::class);
+        }
 
-        // Corrected path: Removed '../' as resources is inside src
-        $this->publishes([
-            __DIR__ . '/resources/views' => resource_path('views/vendor/ai-agent'),
-        ], 'ai-agent-views');
+        if ($this->app->runningInConsole()) {
+            $this->commands([
+                EmbedDocs::class,
+            ]);
+
+            $this->publishes([
+                __DIR__ . '/../config/ai-agent.php' => config_path('ai-agent.php'),
+            ], 'ai-agent-config');
+
+            $this->publishes([
+                __DIR__ . '/../stubs/Mail/EscalationAlert.php' => app_path('Mail/EscalationAlert.php'),
+            ], 'ai-agent-mail');
+
+            $this->publishes([
+                __DIR__ . '/../resources/views' => resource_path('views/vendor/ai-agent'),
+            ], 'ai-agent-views');
+        }
+    }
+
+    public function provides()
+    {
+        return [
+            EmbeddingsInterface::class,
+            SupabaseService::class,
+        ];
+    }
+
+    public function shouldDiscoverEvents()
+    {
+        return true;
+    }
+
+    public function shouldDiscoverRoutes()
+    {
+        return true;
+    }
+
+    public function shouldDiscoverViews()
+    {
+        return true;
+    }
+
+    public function shouldDiscoverTranslations()
+    {
+        return true;
     }
 }

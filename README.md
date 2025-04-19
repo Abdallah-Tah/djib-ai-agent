@@ -38,6 +38,24 @@ This package provides tools and services to integrate AI capabilities into your 
         *   `app/Mail/EscalationAlert.php` (Mail stub)
     *   You can also publish specific groups using tags: `--tag="ai-agent-config"`, `--tag="ai-agent-views"`, `--tag="ai-agent-mail"`.
 
+### 1. Livewire Chatbot Component
+
+Embed the chatbot component in any of your Blade views using the package's namespace:
+
+```blade
+{{-- Example: resources/views/dashboard.blade.php --}}
+
+<x-layouts.app>
+    <h1>Chatbot</h1>
+
+    {{-- Add the Livewire component using the namespace --}}
+    @livewire('ai-agent::chatbot')
+
+</x-layouts.app>
+```
+
+Make sure your layout includes `@livewireStyles` in the `<head>` and `@livewireScripts` before the closing `</body>` tag.
+
 ## Configuration
 
 After publishing, configure the package by editing your `.env` file. Add the necessary API keys and Supabase details based on the published `config/ai-agent.php` file.
